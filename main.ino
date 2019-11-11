@@ -7,8 +7,8 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 
-const char ssid[][10] = {"nigel", "08154711"};
-const char password[][20] = {"##IdW16AwdTudB##", "xD9fgLH6"};
+const char ssid[][10] = {"", ""};
+const char password[][20] = {"", ""};
 
 volatile unsigned long last_interrupt_time = 0;
 volatile int mode = 0;
