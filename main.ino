@@ -7,8 +7,8 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 
-const char ssid[][10] = {"", ""};
-const char password[][20] = {"", ""};
+const char ssid[][10] = {"#SSID#", "#SSID#"}; 
+const char password[][20] = {"#PASSWD#", "#PASSWD#"};
 
 volatile unsigned long last_interrupt_time = 0;
 volatile int mode = 0;
@@ -18,7 +18,7 @@ unsigned long lastmillis = 0;
 const int intervall_0 = 500;
 const int intervall_1 = 1000;
 const int intervall_2 = 500;
-const int utcOffsetInSeconds = 3600;
+const int utcOffsetInSeconds = 3600; //UTC offset of your timezone
 unsigned long time_lastcon, time_last, syncedtimeinmilliseconds;
 unsigned long timeinmilliseconds = 0;
 char conssid[10];
@@ -102,7 +102,7 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // main loop
   currentmillis = millis();
   server.handleClient();
   switch (mode){
@@ -152,7 +152,7 @@ void build_print(int modus){
       {
       get_indoor();
       get_time();
-      sum = String(rawhours) + minutes + String(round(temperature)) + String(round(humidity));
+      sum = String(rawhours) + minutes + String(round(temperature)) + String(round(humidity)); //checks if any changes would be displayed preventing unnecessary flickering
       if (sum != sum_old){
         lcd.clear();
         lcd.setCursor(7-String(rawhours).length(), 0);
@@ -226,7 +226,7 @@ void build_print(int modus){
     }
 }
 
-bool connectWIFI(int num){
+bool connectWIFI(int num){ //this function is designed to handle two WIFI networks
   char conpassword[20];
   int count = 0;
   bool conStatus = true;
@@ -259,14 +259,14 @@ bool connectWIFI(int num){
 
 void interrupt_handler()
 {
-  unsigned long interrupt_time = millis();
+  unsigned long interrupt_time = millis();  //debounces the touch sensors signal pin
   if (interrupt_time - last_interrupt_time > 100){
-    interrupt_func();
+    interrupt_func(); 
  }
  last_interrupt_time = interrupt_time;
 }
 
-void interrupt_func(){
+void interrupt_func(){  //true interrupt function
   if (mode == 4){
     mode = 0;
   }
@@ -279,7 +279,7 @@ void interrupt_func(){
   sum_old = "";
 }
 
-void get_time(){
+void get_time(){  //the times isn't synced every time get_time() is called 
   unsigned long time_current = millis();
 
   if (time_current -  time_lastcon > 1800000 || time_lastcon == 0){
@@ -289,7 +289,7 @@ void get_time(){
     timeinmilliseconds += time_current - time_last;
     time_last = time_current;
   }
-  if(timeinmilliseconds >= 86400000){
+  if(timeinmilliseconds >= 86400000){ //triggers sync_time() if time ist bigger than 23:59:59
     sync_time();
   }
   int temp = 0;
@@ -322,7 +322,7 @@ void sync_time(){
   Serial.println(datetime);
 }
 
-void get_indoor(){
+void get_indoor(){ //reads sensor's data
 
   temperature = bme.readTemperature();
   humidity = bme.readHumidity();
@@ -331,16 +331,16 @@ void get_indoor(){
 
 }
 
-void handle_OnConnect() {
+void handle_OnConnect() { //handels http requests
   get_indoor();
   server.send(200, "text/html", SendHTML());
 }
 
-void handle_NotFound(){
+void handle_NotFound(){ 
   server.send(404, "text/plain", "Not found");
 }
 
-String SendHTML(){
+String SendHTML(){     //HTML response on port 80
   String ptr = "<!DOCTYPE html> <html>\n";
   ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\" charset=\"utf-8\">\n";
   ptr +="<title>Tom's Wetterstation</title>\n";
